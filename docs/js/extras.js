@@ -112,6 +112,7 @@ document.addEventListener('click', e => {
   a.instructions = t.instructions; a.kb = t.kb;
   a.warmth = 70; a.formality = 35; a.playfulness = 60;
   for (const tool of FAA.TOOLS) a.tools[tool.id] = !!t.tools[tool.id];
+  FAA.resetSession();
   FAA.save(); FAA.renderBuilder(); FAA.syncChatHeader();
   FAA.checkMission('created'); FAA.checkMission('kb'); FAA.checkMission('tools');
   if (FAA.renderHome) FAA.renderHome();
@@ -171,8 +172,9 @@ FAA.initShare = function () {
     r.onload = () => {
       try {
         const agent = JSON.parse(r.result);
-        if (typeof agent.name !== 'string' || typeof agent.tools !== 'object') throw new Error('bad file');
-        FAA.state.agent = Object.assign(FAA.state.agent, agent);
+        if (!agent || typeof agent.name !== 'string') throw new Error('bad file');
+        FAA.state.agent = FAA.saneAgent(agent);
+        FAA.resetSession();
         FAA.save(); FAA.renderBuilder(); FAA.syncChatHeader();
         FAA.shareToast('Agent imported.');
         if (FAA.renderHome) FAA.renderHome();

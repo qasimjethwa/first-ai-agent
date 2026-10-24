@@ -199,14 +199,15 @@ FAA.TOOLS = [
           const distract = shuffle(numPool.filter(n => n !== ans)).slice(0, 3);
           while (distract.length < 3) distract.push(String(Math.round(parseFloat(ans.replace(/[^0-9.]/g, '')) * (1 + 0.2 * (distract.length + 1)) * 100) / 100));
           const q = f.sentence.replace(ans, '**____**');
-          return { q: `Fill in the blank:\n\n"${q}"`, options: shuffle([ans, ...distract.slice(0, 3)]), answer: 0 };
+          const opts = shuffle([ans, ...distract.slice(0, 3)]);
+          return { q: `Fill in the blank:\n\n"${q}"`, options: opts, answer: opts.indexOf(ans) };
         }
         const others = shuffle(defPool.filter(d => d.term !== f.term)).slice(0, 3).map(d => d.def);
-        while (others.length < 3) others.push('(none of these)');
+        const fillers = ['(none of these)', 'Not covered in the material', 'It is never defined'];
+        while (others.length < 3) others.push(fillers[others.length]);
         const opts = shuffle([f.def, ...others.slice(0, 3)]);
         return { q: `What is **${f.term}**?`, options: opts, answer: opts.indexOf(f.def) };
       });
-      qs.forEach(q => q.answer = q.options.indexOf(q.options[q.answer]));
       ctx.session.quiz = { qs, i: 0, score: 0, n: qs.length };
       return FAA.quizAsk(ctx, true);
     },

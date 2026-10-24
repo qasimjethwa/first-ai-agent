@@ -238,6 +238,7 @@ FAA.initUI = function () {
   if (FAA.$('home-all-templates')) FAA.$('home-all-templates').addEventListener('click', () => FAA.showView('templates'));
   if (FAA.$('chat-new')) FAA.$('chat-new').addEventListener('click', () => {
     FAA.$('chat-log').innerHTML = '';
+    FAA.resetSession();
     FAA.brainReset();
     FAA.appendSys('New chat started. Your agent and its memory are unchanged.');
   });

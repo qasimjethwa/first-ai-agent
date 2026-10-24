@@ -4,7 +4,7 @@
 const AVATARS = ['🤖', '🦾', '🧠', '✨', '🚀', '🎓', '🔬', '🦊', '🐙', '⚡', '🌟', '💎', '🎧', '🗺', '🔮', '🦄', '🐝', '🦉', '👾', '💡', '🎯', '🔥', '🌊', '🍀'];
 
 const ROLE_DEFAULTS = {
-  generalist: { instructions: '', tools: null },
+  generalist: { instructions: '', tools: 'all' },
   research:   { instructions: 'Always cite which part of the knowledge base you used. Prefer summarising over long quotes.', tools: { summarise: true, vocab: true, notes: true, calc: true, convert: true } },
   study:      { instructions: 'Be encouraging but honest. Quiz me before explaining — test first, teach after.', tools: { quiz: true, flashcards: true, schedule: true, summarise: true, vocab: true } },
   support:    { instructions: 'Be patient and clear. Break solutions into numbered steps.', tools: { proscons: true, notes: true, planner: true, summarise: true } },
@@ -64,12 +64,24 @@ FAA.saveAgent = function (silent) {
   a.kb = FAA.$('kb-input').value;
   for (const s of ['warmth', 'formality', 'playfulness']) a[s] = parseInt(FAA.$('sl-' + s).value);
   FAA.save();
+  FAA.resetSession();
   FAA.syncChatHeader();
   if (FAA.renderHome) FAA.renderHome();
   if (FAA.renderPreview) FAA.renderPreview();
   FAA.checkMission('created');
   if (a.kb.trim().length > 200) FAA.checkMission('kb');
-  if (!silent) FAA.appendSys(`Agent <b>${FAA.esc(a.name)}</b> saved. ${a.kb.trim() ? 'Knowledge base loaded.' : ''} Take it for a spin in Chat.`);
+  if (!silent) {
+    /* visible confirmation in the Studio itself — the chat-log note alone is invisible here */
+    for (const btnId of ['save-agent', 'wiz-save']) {
+      const btn = FAA.$(btnId);
+      if (!btn || btn.dataset.flash) continue;
+      btn.dataset.flash = '1';
+      const old = btn.textContent;
+      btn.textContent = '✓ Saved';
+      setTimeout(() => { btn.textContent = old; delete btn.dataset.flash; }, 1600);
+    }
+    FAA.appendSys(`Agent <b>${FAA.esc(a.name)}</b> saved. ${a.kb.trim() ? 'Knowledge base loaded.' : ''} Take it for a spin in Chat.`);
+  }
 };
 
 FAA.initBuilder = function () {
@@ -89,18 +101,33 @@ FAA.initBuilder = function () {
     const id = b.dataset.role;
     FAA.state.agent.role = id;
     const def = ROLE_DEFAULTS[id];
-    if (def.instructions && !FAA.$('ag-instructions').value.trim())
-      FAA.$('ag-instructions').value = def.instructions;
-    if (def.tools) {
-      for (const t of FAA.TOOLS) FAA.state.agent.tools[t.id] = !!def.tools[t.id];
-      FAA.renderTools();
+    if (def) {
+      /* Instructions the app itself put in the box (a preset's or a template's text) are
+         swapped for the newly picked preset's — Generalist clears them, so a previous
+         agent's persona never leaks into the new one. Text the user typed is never touched. */
+      const presetTexts = new Set(Object.values(ROLE_DEFAULTS).map(d => d.instructions).filter(Boolean));
+      if (typeof TEMPLATES !== 'undefined') TEMPLATES.forEach(t => presetTexts.add(t.instructions));
+      const cur = FAA.$('ag-instructions').value;
+      if (presetTexts.has(cur)) FAA.$('ag-instructions').value = def.instructions;
+      else if (def.instructions && !cur.trim()) FAA.$('ag-instructions').value = def.instructions;
+      if (def.tools === 'all') {
+        for (const t of FAA.TOOLS) FAA.state.agent.tools[t.id] = true;
+        FAA.renderTools();
+      } else if (def.tools) {
+        for (const t of FAA.TOOLS) FAA.state.agent.tools[t.id] = !!def.tools[t.id];
+        FAA.renderTools();
+      }
     }
     FAA.$('role-grid').querySelectorAll('button').forEach(x => x.classList.toggle('sel', x === b));
     if (FAA.renderPreview) FAA.renderPreview();
   });
 
   for (const s of ['warmth', 'formality', 'playfulness'])
-    FAA.$('sl-' + s).addEventListener('input', e => { FAA.$('sl-' + s + '-v').textContent = e.target.value; });
+    FAA.$('sl-' + s).addEventListener('input', e => {
+      FAA.$('sl-' + s + '-v').textContent = e.target.value;
+      FAA.state.agent[s] = parseInt(e.target.value); /* write through so the Review step shows real values */
+      if (FAA.renderPreview) FAA.renderPreview();
+    });
 
   FAA.$('kb-input').addEventListener('input', FAA.updateKbStats);
 
@@ -125,6 +152,7 @@ FAA.initBuilder = function () {
       return d;
     })();
     FAA.state.memory = mem; FAA.state.missions = mis;
+    FAA.resetSession();
     FAA.save(); FAA.renderBuilder(); FAA.syncChatHeader();
     if (FAA.renderHome) FAA.renderHome();
     if (FAA.renderPreview) FAA.renderPreview();

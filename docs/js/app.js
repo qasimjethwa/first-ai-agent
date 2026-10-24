@@ -7,7 +7,7 @@
   /* shared agent via #a= link */
   const shared = FAA.importFromHash();
   if (shared) {
-    FAA.state.agent = Object.assign(FAA.state.agent, shared);
+    FAA.state.agent = shared; /* importFromHash returns a complete, sanitised agent */
     FAA.save();
     history.replaceState(null, '', location.pathname);
   }

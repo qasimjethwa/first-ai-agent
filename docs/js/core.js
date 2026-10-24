@@ -54,6 +54,21 @@ FAA.state = {
   booted: false
 };
 
+/* Drop any in-flight tool flow (pending prompt, quiz, flashcards). It belongs to the
+   previous agent configuration and must never leak into a new agent's chat. */
+FAA.resetSession = () => { FAA.state.session = {}; };
+
+/* Merge a foreign agent object (saved state, JSON import, share link) onto safe defaults.
+   Guards the null/undefined paths: tools always ends up a complete object, role always valid. */
+FAA.saneAgent = a => {
+  const out = Object.assign(DEFAULT_AGENT(), a || {});
+  out.tools = Object.assign(DEFAULT_AGENT().tools,
+    (a && a.tools && typeof a.tools === 'object') ? a.tools : {});
+  if (typeof out.name !== 'string' || !out.name.trim()) out.name = 'Nova';
+  if (!FAA.ROLES || !FAA.ROLES[out.role]) out.role = 'generalist';
+  return out;
+};
+
 FAA.save = () => {
   try {
     localStorage.setItem('faa_v1', JSON.stringify({
@@ -67,7 +82,7 @@ FAA.load = () => {
     const raw = localStorage.getItem('faa_v1');
     if (!raw) return false;
     const d = JSON.parse(raw);
-    if (d.agent) FAA.state.agent = Object.assign(DEFAULT_AGENT(), d.agent);
+    if (d.agent) FAA.state.agent = FAA.saneAgent(d.agent);
     if (Array.isArray(d.memory)) FAA.state.memory = d.memory;
     if (d.missions) FAA.state.missions = d.missions;
     return true;
@@ -81,7 +96,7 @@ FAA.importFromHash = () => {
   try {
     const json = decodeURIComponent(escape(atob(m[1].replace(/-/g, '+').replace(/_/g, '/'))));
     const agent = JSON.parse(json);
-    if (agent && typeof agent.name === 'string') return agent;
+    if (agent && typeof agent.name === 'string') return FAA.saneAgent(agent);
   } catch (e) {}
   return null;
 };

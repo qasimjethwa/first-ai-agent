@@ -36,7 +36,9 @@ function kbAnswer(query, kb) {
     const score = shared.length / Math.sqrt(qk.length);
     if (score > bestScore) { bestScore = score; best = { chunk: c, shared }; }
   }
-  if (best && best.shared.length >= 2) return best;
+  /* a one-keyword question can only ever share that one keyword — requiring 2 made the
+     KB unreachable for short questions like "what is a transformer?" */
+  if (best && best.shared.length >= Math.min(2, qk.length)) return best;
   return null;
 }
 
@@ -178,7 +180,7 @@ FAA.runLoop = async function (rawText) {
       return `${t.opener}From your knowledge base:\n\n> ${FAA.esc(hit.chunk)}\n\n${t.closer}`;
     }
     step('📚 Search knowledge base', 'done');
-    trace.push('kb: no chunk matched (need ≥2 keyword overlaps)');
+    trace.push('kb: no chunk matched (not enough keyword overlap)');
   }
 
   /* --- fallback chat --- */
