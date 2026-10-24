@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>First AI Agent — build your own AI agent, zero code</title>
+<meta name="description" content="A zero-code AI agent studio that runs 100% in your browser. Build an agent, give it tools and knowledge, and watch its brain work. No API key. No code.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='14' y='26' width='72' height='58' rx='20' fill='%230A0F1F'/%3E%3Crect x='24' y='38' width='52' height='34' rx='12' fill='%23E9C979'/%3E%3Ccircle cx='41' cy='55' r='5' fill='%230A0F1F'/%3E%3Ccircle cx='59' cy='55' r='5' fill='%230A0F1F'/%3E%3C/svg%3E">
+</head>
+<body>
+<div class="aurora" aria-hidden="true"></div>
+
+<div class="shell">
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar">
+    <div class="brand" id="brand-home">
+      <span class="brand-mark" data-icon="spark"></span>
+      <span class="brand-name">Agent Studio</span>
+    </div>
+    <nav class="side-nav" aria-label="Main">
+      <button class="nav-it active" data-view="home"><span class="ic" data-icon="home"></span><span class="nav-label">Home</span></button>
+      <button class="nav-it" data-view="studio"><span class="ic" data-icon="build"></span><span class="nav-label">Build</span></button>
+      <button class="nav-it" data-view="playground"><span class="ic" data-icon="chat"></span><span class="nav-label">Chat</span></button>
+      <button class="nav-it" data-view="missions"><span class="ic" data-icon="target"></span><span class="nav-label">Missions</span><span class="pill" id="missions-pill">0/5</span></button>
+      <button class="nav-it" data-view="templates"><span class="ic" data-icon="grid"></span><span class="nav-label">Templates</span></button>
+      <button class="nav-it" data-share="1"><span class="ic" data-icon="bot"></span><span class="nav-label">My Agent</span></button>
+      <button class="nav-it" data-view="playground" data-focus="memory"><span class="ic" data-icon="memory"></span><span class="nav-label">Memory</span><span class="pill" id="memory-count">0</span></button>
+      <button class="nav-it" data-view="explain"><span class="ic" data-icon="learn"></span><span class="nav-label">Learn</span></button>
+    </nav>
+    <div class="side-foot">
+      <button class="btn gold small side-share" id="open-share"><span class="ic" data-icon="share"></span> Share agent</button>
+      <div class="user-card">
+        <span class="user-av">Q</span>
+        <div><div class="user-name">Qasim</div><div class="user-role">Creator</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <div class="main-col">
+    <main>
+      <!-- ============ HOME ============ -->
+      <section class="view active" id="view-home">
+        <div class="home-grid">
+          <div class="home-main">
+            <div class="hero panel">
+              <div class="hero-copy">
+                <div class="eyebrow">Build &nbsp;•&nbsp; Chat &nbsp;•&nbsp; Learn &nbsp;•&nbsp; No code</div>
+                <h1>Create your own<br><span class="gold-text">AI Agent</span></h1>
+                <p class="hero-sub">Configure. Chat. Use powerful tools. All in your browser.<br>No backend. No API keys. Just you and your ideas.</p>
+                <div class="hero-ctas">
+                  <button class="btn gold big" id="home-new-agent"><span class="ic" data-icon="plus"></span> Create New Agent</button>
+                  <button class="btn ghost big" id="home-watch-demo"><span class="ic" data-icon="play"></span> Watch Demo</button>
+                </div>
+              </div>
+              <div class="mascot-wrap" aria-hidden="true">
+                <div class="mascot" id="mascot"></div>
+                <span class="orbit-chip oc1"><span class="ic" data-icon="think"></span> Think</span>
+                <span class="orbit-chip oc2"><span class="ic" data-icon="plan"></span> Plan</span>
+                <span class="orbit-chip oc3"><span class="ic" data-icon="wrench"></span> Use Tools</span>
+                <span class="orbit-chip oc4"><span class="ic" data-icon="answer"></span> Answer</span>
+              </div>
+            </div>
+
+            <div class="home-section-head">
+              <div>
+                <h2>Quick Start Templates</h2>
+                <p>Get started instantly with pre-built agents and sample knowledge.</p>
+              </div>
+              <button class="link-btn" id="home-all-templates">View all templates <span class="ic" data-icon="arrow"></span></button>
+            </div>
+            <div class="home-templates" id="home-templates"></div>
+
+            <div class="mission-teaser panel">
+              <div class="mt-copy">
+                <div class="panel-title"><span class="ic gold-ic" data-icon="target"></span> Missions</div>
+                <p>Learn how agents work by building one — five hands-on challenges.</p>
+                <div class="progress"><div class="progress-fill" id="home-missions-fill"></div></div>
+              </div>
+              <div class="mt-side">
+                <span class="mt-count" id="home-missions-count">0/5</span>
+                <button class="btn ghost" data-goto="missions">Start missions</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="rail">
+            <div class="panel rail-card">
+              <div class="rail-head"><h3>My Agents</h3><button class="btn gold small" id="rail-new-agent"><span class="ic" data-icon="plus"></span> New Agent</button></div>
+              <div class="rail-agents" id="home-agents"></div>
+            </div>
+            <div class="panel rail-card">
+              <div class="rail-head"><h3>Tools</h3><span class="rail-note" id="home-tools-count">10 Tools Enabled</span></div>
+              <div class="rail-tools" id="home-tools"></div>
+            </div>
+            <div class="panel rail-card">
+              <div class="rail-head"><h3>Memory</h3><button class="btn ghost small" data-goto="playground">View</button></div>
+              <ul class="rail-memory" id="home-memory"></ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ PLAYGROUND / CHAT ============ -->
+      <section class="view" id="view-playground">
+        <div class="play-grid">
+          <div class="chat-col panel">
+            <div class="chat-head">
+              <div class="agent-chip">
+                <span class="agent-avatar" id="chat-avatar"></span>
+                <div>
+                  <div class="agent-name" id="chat-agent-name">Nova</div>
+                  <div class="agent-role"><span class="online-dot"></span><span id="chat-agent-role">Generalist</span> · Online</div>
+                </div>
+              </div>
+              <div class="chat-head-actions">
+                <button class="btn small ghost" id="chat-new">New Chat</button>
+                <button class="btn small ghost" id="edit-agent">Edit in Studio →</button>
+              </div>
+            </div>
+            <div class="chat-log" id="chat-log"></div>
+            <div class="chips" id="quick-chips"></div>
+            <form class="chat-form" id="chat-form" autocomplete="off">
+              <textarea id="chat-input" rows="1" placeholder="Type your message…" maxlength="2000"></textarea>
+              <button class="btn send-btn" type="submit" aria-label="Send message"><span class="ic" data-icon="send"></span></button>
+            </form>
+          </div>
+
+          <div class="side-col">
+            <div class="panel brain-panel">
+              <div class="panel-title"><span class="ic gold-ic" data-icon="zap"></span> Agent brain <span class="live-dot" id="brain-live" hidden></span></div>
+              <div class="brain-sub" id="brain-sub">Every reply shows the real loop: understand → plan → pick a tool → run it → answer.</div>
+              <ol class="brain-steps" id="brain-steps">
+                <li class="brain-idle">Send a message and watch the loop fire.</li>
+              </ol>
+              <details class="brain-detail" id="brain-detail" hidden>
+                <summary>Tool trace</summary>
+                <pre id="brain-trace"></pre>
+              </details>
+            </div>
+            <div class="panel memory-panel" id="memory-panel">
+              <div class="panel-title"><span class="ic gold-ic" data-icon="memory"></span> Memory <span class="pill" id="memory-count-2">0</span></div>
+              <div class="memory-hint">Tell your agent <code>remember that…</code> — it sticks, even after reload.</div>
+              <ul class="memory-list" id="memory-list"></ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ STUDIO / BUILD WIZARD ============ -->
+      <section class="view" id="view-studio">
+        <div class="wiz-head">
+          <div>
+            <h2 class="view-title">Build Your Agent</h2>
+            <p class="view-sub">Configure your agent's identity, knowledge and tools.</p>
+          </div>
+          <button class="btn ghost small" id="reset-agent">Reset to defaults</button>
+        </div>
+
+        <ol class="wsteps" id="wsteps">
+          <li class="wstep-dot active" data-wstep="1"><span class="wd-num">1</span> Identity</li>
+          <li class="wstep-dot" data-wstep="2"><span class="wd-num">2</span> Personality</li>
+          <li class="wstep-dot" data-wstep="3"><span class="wd-num">3</span> Knowledge</li>
+          <li class="wstep-dot" data-wstep="4"><span class="wd-num">4</span> Tools</li>
+          <li class="wstep-dot" data-wstep="5"><span class="wd-num">5</span> Review</li>
+        </ol>
+
+        <div class="wiz-grid">
+          <div class="panel wiz-body">
+            <!-- STEP 1 · Identity -->
+            <div class="wpanel active" data-wpanel="1">
+              <label class="field"><span>Agent Name</span>
+                <input id="ag-name" type="text" maxlength="32" placeholder="Nova">
+              </label>
+              <div class="field"><span>Avatar</span><div class="avatar-grid" id="avatar-grid"></div></div>
+              <div class="field"><span>Role Preset</span><div class="role-grid" id="role-grid"></div></div>
+              <label class="field"><span>Custom Instructions <em>(optional)</em></span>
+                <textarea id="ag-instructions" rows="3" maxlength="600" placeholder="e.g. Always explain in simple terms, use examples, and keep answers concise."></textarea>
+                <span class="char-count"><span id="instr-count">0</span>/600</span>
+              </label>
+            </div>
+            <!-- STEP 2 · Personality -->
+            <div class="wpanel" data-wpanel="2">
+              <div class="field sliders">
+                <span>Personality</span>
+                <p class="panel-sub">Slide to shape how your agent talks. Changes apply the moment you save.</p>
+                <label class="slider"><span class="sl-label">Warmth</span> <input type="range" id="sl-warmth" min="0" max="100" value="70"><b id="sl-warmth-v">70</b></label>
+                <label class="slider"><span class="sl-label">Formality</span> <input type="range" id="sl-formality" min="0" max="100" value="35"><b id="sl-formality-v">35</b></label>
+                <label class="slider"><span class="sl-label">Playfulness</span> <input type="range" id="sl-playfulness" min="0" max="100" value="45"><b id="sl-playfulness-v">45</b></label>
+              </div>
+              <div class="tone-note panel-inset">Warm agents greet you like a friend. Formal agents keep it crisp and professional. Playful agents add a wink — you pick the mix.</div>
+            </div>
+            <!-- STEP 3 · Knowledge -->
+            <div class="wpanel" data-wpanel="3">
+              <label class="field"><span>Knowledge Base <em>(paste anything — your agent answers from it)</em></span>
+                <textarea id="kb-input" rows="10" placeholder="Paste notes, a chapter, product docs… e.g.&#10;Photosynthesis converts light energy into chemical energy.&#10;It occurs in chloroplasts and produces glucose and oxygen."></textarea>
+              </label>
+              <div class="kb-stats" id="kb-stats"></div>
+              <div class="tone-note panel-inset">Tip: separate facts with blank lines. Your agent searches these chunks first, before using any tool.</div>
+            </div>
+            <!-- STEP 4 · Tools -->
+            <div class="wpanel" data-wpanel="4">
+              <div class="field"><span>Tools <span class="pill" id="tools-pill">10 on</span></span>
+                <p class="panel-sub">Toggle what your agent can do. It picks the right tool for each message — watch it happen in Chat.</p>
+                <div class="tool-grid" id="tool-grid"></div>
+              </div>
+            </div>
+            <!-- STEP 5 · Review -->
+            <div class="wpanel" data-wpanel="5">
+              <div class="field"><span>Review &amp; Save</span>
+                <p class="panel-sub">Your agent is live in the preview. Save it, then take it for a spin in Chat.</p>
+                <div class="review-rows" id="review-rows"></div>
+              </div>
+              <div class="studio-actions">
+                <button class="btn gold" id="save-agent">Save agent</button>
+                <button class="btn ghost" data-goto="playground">Open Chat →</button>
+              </div>
+            </div>
+
+            <div class="wiz-nav">
+              <button class="btn ghost" id="wiz-prev">← Back</button>
+              <button class="btn gold" id="wiz-next">Next →</button>
+              <button class="btn gold" id="wiz-save" hidden>Save agent</button>
+            </div>
+          </div>
+
+          <div class="panel preview-card">
+            <div class="pv-head"><span class="pv-online"><span class="online-dot"></span> Live preview</span></div>
+            <div class="pv-avatar" id="pv-avatar"></div>
+            <div class="pv-name" id="pv-name">Nova</div>
+            <div class="pv-role" id="pv-role">Generalist</div>
+            <p class="pv-desc" id="pv-desc">A bit of everything — ready when you are.</p>
+            <div class="pv-msg">
+              <span class="pv-msg-av" id="pv-msg-av"></span>
+              <p id="pv-msg">Hi! I'm Nova. I can help you learn, explain concepts, create quizzes, and plan your study schedule. What would you like to explore today?</p>
+            </div>
+            <div class="pv-tools" id="pv-tools"></div>
+            <button class="btn gold pv-chat" data-goto="playground">Chat with this agent</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ MISSIONS ============ -->
+      <section class="view" id="view-missions">
+        <h2 class="view-title">Missions — learn agents by doing</h2>
+        <p class="view-sub">Five small challenges. Each one teaches a real agent concept.</p>
+        <div class="panel missions-wrap">
+          <div class="progress"><div class="progress-fill" id="missions-fill"></div></div>
+          <div class="missions-list" id="missions-list"></div>
+        </div>
+      </section>
+
+      <!-- ============ TEMPLATES ============ -->
+      <section class="view" id="view-templates">
+        <h2 class="view-title">Template gallery</h2>
+        <p class="view-sub">Six starter agents with knowledge packs included. One click loads them into the Studio.</p>
+        <div class="templates-grid" id="templates-grid"></div>
+      </section>
+
+      <!-- ============ EXPLAIN / LEARN ============ -->
+      <section class="view" id="view-explain">
+        <div class="hero panel learn-hero">
+          <div class="hero-kicker">You just built one. Here's what you learned.</div>
+          <h1>How real AI agents work</h1>
+          <p class="hero-sub">An agent is a loop, not magic: <b>perceive</b> → <b>plan</b> → <b>act with tools</b> → <b>remember</b>. Yours runs that loop on every message — in your browser, with zero code and no API key.</p>
+        </div>
+        <div class="explain-grid">
+          <div class="panel explain-card"><div class="ex-num">01</div><h3>Perceive</h3>
+            <p>Your agent reads your message and figures out what you want: a calculation, a quiz, a question about your notes. Real agents do this with a language model — yours does it with intent matching, and you can watch it happen in the brain panel.</p>
+            <p class="ex-did"><b>You did this</b> every time you sent a message in Chat.</p></div>
+          <div class="panel explain-card"><div class="ex-num">02</div><h3>Plan</h3>
+            <p>Before answering, the agent breaks the job into steps: <i>find the facts → pick the tool → run it → compose the answer</i>. Planning is what separates an agent from a chatbot — it decides <b>how</b> to solve the problem, not just what to say.</p>
+            <p class="ex-did"><b>You did this</b> when you watched the step list animate in the brain panel.</p></div>
+          <div class="panel explain-card"><div class="ex-num">03</div><h3>Act with tools</h3>
+            <p>Tools are how agents touch the world — calculators, search, code runners. Your agent has 10 real ones and chooses between them per message. Toggling tools in the Studio is exactly how production agents get their capabilities scoped.</p>
+            <p class="ex-did"><b>You did this</b> in the Studio's tool grid — every toggle reshaped what your agent can do.</p></div>
+          <div class="panel explain-card"><div class="ex-num">04</div><h3>Remember</h3>
+            <p>Agents keep two memories: the conversation (short-term) and facts worth keeping (long-term). Yours stores both — chat history plus anything you tell it to <code>remember</code> — persisted in your browser.</p>
+            <p class="ex-did"><b>You did this</b> the first time you said “remember that…”.</p></div>
+        </div>
+        <div class="panel loop-diagram">
+          <div class="panel-title">The loop, one more time</div>
+          <div class="loop-flow">
+            <span class="loop-node">Your message</span><span class="loop-arrow">→</span>
+            <span class="loop-node">Understand</span><span class="loop-arrow">→</span>
+            <span class="loop-node">Plan</span><span class="loop-arrow">→</span>
+            <span class="loop-node">Use a tool</span><span class="loop-arrow">→</span>
+            <span class="loop-node">Answer</span><span class="loop-arrow">→</span>
+            <span class="loop-node">Remember</span>
+          </div>
+          <p class="panel-sub">Swap the rule-based brain for an LLM API and add web tools, and this is the architecture running inside production AI agents.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <span>Built in a day · 100% client-side · no API key · no backend</span>
+      <span class="foot-links"><a href="https://github.com/qasimjethwa/first-ai-agent" target="_blank" rel="noopener">GitHub</a> · by Qasim Jethwa</span>
+    </footer>
+  </div>
+</div>
+
+<!-- ============ SHARE MODAL ============ -->
+<div class="modal-backdrop" id="share-modal" hidden>
+  <div class="modal panel">
+    <div class="modal-head"><div class="panel-title"><span class="ic gold-ic" data-icon="share"></span> Share your agent</div><button class="btn small ghost" id="close-share">✕</button></div>
+    <div class="agent-card" id="agent-card"></div>
+    <div class="share-row">
+      <button class="btn gold" id="export-json">Export JSON</button>
+      <button class="btn ghost" id="import-json">Import JSON</button>
+      <input type="file" id="import-file" accept=".json,application/json" hidden>
+    </div>
+    <label class="field"><span>Shareable link <em>(agent config encoded in the URL)</em></span>
+      <div class="link-row"><input id="share-link" type="text" readonly><button class="btn small gold" id="copy-link">Copy</button></div>
+    </label>
+    <div class="toast" id="share-toast" hidden></div>
+  </div>
+</div>
+
+<script src="js/core.js"></script>
+<script src="js/tools.js"></script>
+<script src="js/brain.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/chat.js"></script>
+<script src="js/builder.js"></script>
+<script src="js/extras.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
