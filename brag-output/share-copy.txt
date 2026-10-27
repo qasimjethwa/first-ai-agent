@@ -1,0 +1,1 @@
+You don't need code to build an AI agent — this proves it. Pick a role, tune the personality, paste your own notes, and watch it think, plan, and use 10 real tools. Six templates, memory that sticks, zero code, zero API keys — 100% in your browser. Built in a day. Try it live: https://qasimjethwa.github.io/first-ai-agent/ Code: https://github.com/qasimjethwa/first-ai-agent
